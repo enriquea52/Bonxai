@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Bonxai)
+project(bonxai_ros)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 
@@ -39,10 +39,10 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -fno-omit-frame-pointer)
 endif()
 
-
 ####################################################
 add_subdirectory(bonxai_core)
 add_subdirectory(bonxai_map)
+add_subdirectory(bonxai_ros)
 
 
 
