@@ -137,7 +137,7 @@ namespace bonxai_server
         max_range_ = declare_parameter("sensor_model.max_range", -1.0, max_range_desc);
       }
 
-      res_ = declare_parameter("resolution", 0.05);
+      res_ = declare_parameter("resolution", 0.1);
 
       rcl_interfaces::msg::ParameterDescriptor prob_hit_desc;
       prob_hit_desc.description =
@@ -303,10 +303,8 @@ namespace bonxai_server
     const auto & t = sensor_to_world_transform_stamped.transform.translation;
 
     const pcl::PointXYZ sensor_to_world_vec3(t.x, t.y, t.z);
-
-    const PCLPointCloud pc_T2;
     
-    bonxai_->insertPointCloud(pc_T2.points, sensor_to_world_vec3, 30.0);
+    bonxai_->insertPointCloud(pc_T.points, sensor_to_world_vec3, 30.0);
 
     double total_elapsed = (rclcpp::Clock{}.now() - start_time).seconds();
     RCLCPP_DEBUG(
@@ -361,6 +359,7 @@ namespace bonxai_server
 
   void BonxaiServer::publishAll(const rclcpp::Time & rostime)
   {
+
     
     bool publish_marker_array =
       (latched_topics_ ||
@@ -372,6 +371,8 @@ namespace bonxai_server
       std::vector<Eigen::Vector3d> bonxai_result;
       bonxai_->getOccupiedVoxels(bonxai_result);
       Marker occupied_nodes_vis;
+
+      std::cout << "Currently" << bonxai_result.size() << " Voxels"<< std::endl;
 
       occupied_nodes_vis.header.frame_id = world_frame_id_;
       occupied_nodes_vis.header.stamp = rostime;
