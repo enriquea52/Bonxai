@@ -236,6 +236,7 @@ namespace bonxai_server
 
       auto qos = latched_topics_ ? rclcpp::QoS{1}.transient_local() : rclcpp::QoS{1};
       marker_pub_ = create_publisher<MarkerArray>("occupied_cells_vis_array", qos);
+      single_marker_pub_ = create_publisher<Marker>("occupied_voxel_vis_array", qos);
       point_cloud_pub_ = create_publisher<PointCloud2>("bonxai_point_cloud_centers", qos);
       map_pub_ = create_publisher<OccupancyGrid>("projected_map", qos.keep_last(5));
       fmarker_pub_ = create_publisher<MarkerArray>("free_cells_vis_array", qos);
@@ -303,7 +304,7 @@ namespace bonxai_server
       get_logger(),
       "Pointcloud insertion in Bonxai done, %f sec)", total_elapsed);
 
-    // publishAll(cloud->header.stamp);
+    publishAll(cloud->header.stamp);
   }
 
 
@@ -340,13 +341,56 @@ namespace bonxai_server
 
     bonxai_->setOptions(options);
 
-    // publishAll(now());
+    publishAll(now());
 
     rcl_interfaces::msg::SetParametersResult result;
     result.successful = true;
     result.reason = "success";
     return result;
   }
+
+
+  void BonxaiServer::publishAll(const rclcpp::Time & rostime)
+  {
+    
+    bool publish_marker_array =
+      (latched_topics_ ||
+      single_marker_pub_->get_subscription_count() +
+      single_marker_pub_->get_intra_process_subscription_count() > 0);
+
+    if (publish_marker_array)
+    {
+      std::vector<Eigen::Vector3d> bonxai_result;
+      bonxai_->getOccupiedVoxels(bonxai_result);
+      Marker occupied_nodes_vis;
+
+      occupied_nodes_vis.header.frame_id = world_frame_id_;
+      occupied_nodes_vis.header.stamp = rostime;
+      occupied_nodes_vis.ns = "map";
+      occupied_nodes_vis.id = 0;
+      occupied_nodes_vis.type = visualization_msgs::msg::Marker::CUBE_LIST;
+      occupied_nodes_vis.scale.x = res_;
+      occupied_nodes_vis.scale.y = res_;
+      occupied_nodes_vis.scale.z = res_;
+      occupied_nodes_vis.color = color_;
+      occupied_nodes_vis.action = visualization_msgs::msg::Marker::ADD;
+
+      geometry_msgs::msg::Point cube_center;
+      
+      for (const auto& voxel: bonxai_result)
+      {
+          cube_center.x = float(voxel.x());
+          cube_center.y = float(voxel.y());
+          cube_center.z = float(voxel.z());
+
+          occupied_nodes_vis.points.push_back(cube_center);
+      }
+
+      single_marker_pub_->publish(occupied_nodes_vis);
+    }
+
+  }
+
 
 } // namespace bonxai_server
 

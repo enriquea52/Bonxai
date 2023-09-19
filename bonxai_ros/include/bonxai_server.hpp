@@ -42,6 +42,7 @@ namespace bonxai_server
   using sensor_msgs::msg::PointCloud2;
   using std_msgs::msg::ColorRGBA;
   using visualization_msgs::msg::MarkerArray;
+  using visualization_msgs::msg::Marker;
 
 
   class BonxaiServer : public rclcpp::Node
@@ -67,6 +68,7 @@ namespace bonxai_server
 
 
       rclcpp::Publisher<MarkerArray>::SharedPtr marker_pub_;
+      rclcpp::Publisher<Marker>::SharedPtr single_marker_pub_;
       rclcpp::Publisher<PointCloud2>::SharedPtr point_cloud_pub_;
       rclcpp::Publisher<OccupancyGrid>::SharedPtr map_pub_;
       rclcpp::Publisher<MarkerArray>::SharedPtr fmarker_pub_;
