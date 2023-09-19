@@ -5,7 +5,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-include_directories(include)
 
 # Find Dependencies
 find_package(ament_cmake REQUIRED)
@@ -20,7 +19,11 @@ find_package(tf2_ros REQUIRED)
 find_package(visualization_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(message_filters REQUIRED)
+find_package(std_srvs REQUIRED)
 
+
+
+include_directories(include)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -34,9 +37,9 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(bonxai_server src/bonxai_server.cpp)
-target_link_libraries(bonxai_server bonxai_map)
-ament_target_dependencies(bonxai_server 
+add_executable(bonxai_server_node src/bonxai_server.cpp)
+target_link_libraries(bonxai_server_node bonxai_map)
+ament_target_dependencies(bonxai_server_node 
                           rclcpp 
                           rclcpp_components 
                           nav_msgs 
@@ -48,11 +51,13 @@ ament_target_dependencies(bonxai_server
                           visualization_msgs
                           PCL
                           pcl_conversions
-                          message_filters)
-
+                          message_filters
+                          std_srvs
+                          )
 
 install(TARGETS
-  bonxai_server
-  DESTINATION lib/${PROJECT_NAME})
+  bonxai_server_node
+  DESTINATION lib/${PROJECT_NAME}
+  )
 
 ament_package()

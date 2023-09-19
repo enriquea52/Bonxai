@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="bonxai_server" exec="bonxai_server_node" name="bonxai_server"/>
+</launch>

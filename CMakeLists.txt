@@ -43,6 +43,3 @@ endif()
 add_subdirectory(bonxai_core)
 add_subdirectory(bonxai_map)
 add_subdirectory(bonxai_ros)
-
-
-
