@@ -278,6 +278,8 @@ namespace bonxai_server
     // ground filtering in base frame
     //
     PCLPointCloud pc;  // input cloud for filtering and ground-detection
+    PCLPointCloud pc_T;  // input cloud transformed w.r.t world's reference frame
+
     pcl::fromROSMsg(*cloud, pc);
 
     // Sensor In Global Frames Coordinates
@@ -294,10 +296,17 @@ namespace bonxai_server
     Eigen::Matrix4f sensor_to_world =
       tf2::transformToEigen(sensor_to_world_transform_stamped.transform).matrix().cast<float>();
 
+    // Transforming Points to Global Reference Frame
+    pcl::transformPointCloud (pc, pc_T, sensor_to_world);
+
+    // Getting the Translation from the sensor to the Global Reference Frame
     const auto & t = sensor_to_world_transform_stamped.transform.translation;
-    tf2::Vector3 sensor_to_world_vec3{t.x, t.y, t.z};
+
+    const pcl::PointXYZ sensor_to_world_vec3(t.x, t.y, t.z);
+
+    const PCLPointCloud pc_T2;
     
-    // bonxai_->insertPointCloud(pc.points, origin, 30);
+    bonxai_->insertPointCloud(pc_T2.points, sensor_to_world_vec3, 30.0);
 
     double total_elapsed = (rclcpp::Clock{}.now() - start_time).seconds();
     RCLCPP_DEBUG(
