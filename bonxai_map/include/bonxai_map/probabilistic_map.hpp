@@ -145,21 +145,18 @@ inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT>& points
   }
 }
 
-<<<<<<<<< Temporary merge branch 1:bonxai_map/include/bonxai_map/probabilistic_map.hpp
-}  // namespace Bonxai
-=========
 template<typename PointT> inline
-void ProbabilisticMap::insertPointCloud(const std::vector<PointT> &points,
+void ProbabilisticMap::insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
                                         const PointT &origin,
                                         double max_range)
 {
-  const auto from = ToEigenVector3f(origin);
+  const auto from = origin.getVector3fMap();
   const double max_range_sqr = max_range*max_range;
   for(const auto& point: points)
   {
-    const auto to = ToEigenVector3f(point);
+    const auto to = point.getVector3fMap();
     addPoint(from, to, max_range, max_range_sqr);
   }
-  updateFreeCells(origin);
+  updateFreeCells(origin.getVector3fMap());
 }
 }
