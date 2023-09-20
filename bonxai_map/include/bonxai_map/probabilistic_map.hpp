@@ -86,11 +86,6 @@ public:
                         const PointT& origin,
                         double max_range);
 
-  template <typename PointT>
-  void insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
-                        const PointT &origin,
-                        double max_range);
-
   [[nodiscard]] bool isOccupied(const Bonxai::CoordT& coord) const;
 
   [[nodiscard]] bool isUnknown(const Bonxai::CoordT& coord) const;
@@ -163,21 +158,6 @@ void ProbabilisticMap::insertPointCloud(const std::vector<PointT> &points,
     addPoint(from, to, max_range, max_range_sqr);
   }
   updateFreeCells(origin);
-}
-
-template<typename PointT> inline
-void ProbabilisticMap::insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
-                                        const PointT &origin,
-                                        double max_range)
-{
-  const auto from = origin.getVector3fMap();
-  const double max_range_sqr = max_range*max_range;
-  for(const auto& point: points)
-  {
-    const auto to = point.getVector3fMap();
-    addPoint(from, to, max_range, max_range_sqr);
-  }
-  updateFreeCells(origin.getVector3fMap());
 }
 
 }
