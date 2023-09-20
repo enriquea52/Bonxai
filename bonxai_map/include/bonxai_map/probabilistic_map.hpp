@@ -90,7 +90,7 @@ public:
   void insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
                         const PointT &origin,
                         double max_range);
-                        
+
   [[nodiscard]] bool isOccupied(const Bonxai::CoordT& coord) const;
 
   [[nodiscard]] bool isUnknown(const Bonxai::CoordT& coord) const;
@@ -130,26 +130,24 @@ private:
 };
 
 //--------------------------------------------------
-template <typename T> inline
-    Eigen::Vector3f ToEigenVector3f(const T& v)
-{
-  static_assert(type_has_method_x<T>::value ||
-                    type_has_member_x<T>::value ||
-                    type_has_operator<T>::value,
-                "Can't assign to Eigen::Vector3f");
 
-  if constexpr(type_has_method_x<T>::value) {
-    return {v.x(), v.y(), v.z()};
-  }
-  if constexpr(type_has_member_x<T>::value) {
-    return {v.x, v.y, v.z};
-  }
-  if constexpr(type_has_operator<T>::value){
-    return {v[0], v[1], v[2]};
+template <typename PointT>
+inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT>& points,
+                                               const PointT& origin,
+                                               double max_range)
+{
+  const auto from = ConvertTo<Eigen::Vector3f>(origin);
+  const double max_range_sqr = max_range * max_range;
+  for (const auto& point : points)
+  {
+    const auto to = ConvertTo<Eigen::Vector3f>(point);
+    addPoint(from, to, max_range, max_range_sqr);
   }
 }
 
-
+<<<<<<<<< Temporary merge branch 1:bonxai_map/include/bonxai_map/probabilistic_map.hpp
+}  // namespace Bonxai
+=========
 template<typename PointT> inline
 void ProbabilisticMap::insertPointCloud(const std::vector<PointT> &points,
                                         const PointT &origin,
@@ -163,20 +161,5 @@ void ProbabilisticMap::insertPointCloud(const std::vector<PointT> &points,
     addPoint(from, to, max_range, max_range_sqr);
   }
   updateFreeCells(origin);
-}
-
-template<typename PointT> inline
-void ProbabilisticMap::insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
-                                        const PointT &origin,
-                                        double max_range)
-{
-  const auto from = origin.getVector3fMap();
-  const double max_range_sqr = max_range*max_range;
-  for(const auto& point: points)
-  {
-    const auto to = point.getVector3fMap();
-    addPoint(from, to, max_range, max_range_sqr);
-  }
-  updateFreeCells(origin.getVector3fMap());
 }
 }
