@@ -278,7 +278,7 @@ namespace bonxai_server
     // ground filtering in base frame
     //
     PCLPointCloud pc;  // input cloud for filtering and ground-detection
-    PCLPointCloud pc_T;  // input cloud transformed w.r.t world's reference frame
+    // PCLPointCloud pc_T;  // input cloud transformed w.r.t world's reference frame
 
     pcl::fromROSMsg(*cloud, pc);
 
@@ -297,14 +297,14 @@ namespace bonxai_server
       tf2::transformToEigen(sensor_to_world_transform_stamped.transform).matrix().cast<float>();
 
     // Transforming Points to Global Reference Frame
-    pcl::transformPointCloud (pc, pc_T, sensor_to_world);
+    pcl::transformPointCloud (pc, pc, sensor_to_world);
 
     // Getting the Translation from the sensor to the Global Reference Frame
     const auto & t = sensor_to_world_transform_stamped.transform.translation;
 
     const pcl::PointXYZ sensor_to_world_vec3(t.x, t.y, t.z);
     
-    bonxai_->insertPointCloud(pc_T.points, sensor_to_world_vec3, 30.0);
+    bonxai_->insertPointCloud(pc.points, sensor_to_world_vec3, 30.0);
 
     double total_elapsed = (rclcpp::Clock{}.now() - start_time).seconds();
     RCLCPP_DEBUG(
@@ -356,7 +356,6 @@ namespace bonxai_server
     return result;
   }
 
-
   void BonxaiServer::publishAll(const rclcpp::Time & rostime)
   {
 
@@ -389,9 +388,9 @@ namespace bonxai_server
       
       for (const auto& voxel: bonxai_result)
       {
-          cube_center.x = float(voxel.x());
-          cube_center.y = float(voxel.y());
-          cube_center.z = float(voxel.z());
+          cube_center.x = voxel.x();
+          cube_center.y = voxel.y();
+          cube_center.z = voxel.z();
 
           occupied_nodes_vis.points.push_back(cube_center);
       }
@@ -400,7 +399,6 @@ namespace bonxai_server
     }
 
   }
-
 
 } // namespace bonxai_server
 
