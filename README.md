@@ -12,7 +12,7 @@ Bonxai data structure is:
 >(*) The dimension of the 3D space is virtually "infinite":
 since **32-bits indexes** are used, given a voxel size of **1 cm**,
 the maximum range of the X, Y and Z coordinates would be about **40.000 Km**.
-As a reference **the diameter of planet hearth is 12.000 Km**.
+As a reference **the diameter of planet Earth is 12.000 Km**.
 
 If you are familiar with [Octomap](https://octomap.github.io/) and Octrees, you know
 that those data structures are also sparse and unbounded.
@@ -84,6 +84,12 @@ Nothing prevents you from having more complex cell values, for instance:
 
 ```c++
 Bonxai::VoxelGrid<Eigen::Vector4d> vector_grid( voxel_resolution );
+// or
+struct Foo {
+ int a;
+ double b;
+};
+Bonxai::VoxelGrid<Foo> foo_grid( voxel_resolution );
 ```
 
 To insert values into a cell with coordinates x, y and z, use a
@@ -91,28 +97,41 @@ To insert values into a cell with coordinates x, y and z, use a
 In the next code sample, we will create a dense cube of cells with value 42:
 
 ```c++
-// create the accessor ONCE and reuse it as much as possible
+// Each cell will contail a `float` and it will have size 0.05
+double voxel_resolution = 0.05;
+Bonxai::VoxelGrid<float> grid( voxel_resolution );
+
+// Create this accessor once, and reuse it as much as possible.
 auto accessor = grid.createAccessor();
 
-for( double x = 0; x < 1.0; x += voxel_resolution )
-{
-  for( double y = 0; y < 1.0; y += voxel_resolution )
-  {
-    for( double z = 0; z < 1.0; z += voxel_resolution )
-    {
-      Bonxai::CoordT coord = grid.posToCoord( x, y, z );
-      accessor.setValue( coord, 42 );
+// Create cells with value 42.0 in a 1x1x1 cube.
+// Given voxel_resolution = 0.05, this will be equivalent
+// to 20x20x20 cells in the grid.
+
+for( double x = 0; x < 1.0; x += voxel_resolution ) {
+  for( double y = 0; y < 1.0; y += voxel_resolution ) {
+    for( double z = 0; z < 1.0; z += voxel_resolution ) {
+      // discretize the position {x,y,z}
+      Bonxai::CoordT coord = grid.posToCoord(x, y, z);
+      accessor.setValue( coord, 42.0 );
     }
   }
 }
+
+// You can read (or update) the value of a cell as shown below.
+// If the cell doesn't exist, `value_ptr` will be nullptr, 
+
+Bonxai::CoordT coord = grid.posToCoord(x, y, z);
+float* value_ptr = accessor.value( coord );
 ```
 
-Finally, to read the value of a cell:
+## Note about multi-threading
 
-```c++
-// If the value of the cell has never been set, return nullptr
-int* value = accessor.value( coord );
-```
+`Bonxai::VoxelGrid` is **not** thread safe, for write operations.
+
+If you want to access the grid in **read-only** mode, you can
+use multi-threading, but each thread should have its own 
+`accessor`.
 
 # Roadmap
 
