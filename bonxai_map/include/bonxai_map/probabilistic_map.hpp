@@ -90,7 +90,7 @@ public:
   void insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
                         const PointT &origin,
                         double max_range);
-
+                        
   [[nodiscard]] bool isOccupied(const Bonxai::CoordT& coord) const;
 
   [[nodiscard]] bool isUnknown(const Bonxai::CoordT& coord) const;
@@ -179,5 +179,4 @@ void ProbabilisticMap::insertPointCloud(const std::vector<PointT,  Eigen::aligne
   }
   updateFreeCells(origin.getVector3fMap());
 }
-
 }
