@@ -79,7 +79,7 @@ int main(int argc, char * argv[])
     cloud_pub.tf_broadcaster_->sendTransform(tf_pose);
 
     // sleep for x time
-    this_thread::sleep_for(chrono::milliseconds(500));
+    this_thread::sleep_for(chrono::milliseconds(200));
 
   }
 

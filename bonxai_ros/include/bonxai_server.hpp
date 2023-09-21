@@ -20,7 +20,6 @@
 #include "std_srvs/srv/empty.hpp"
 
 #include "pcl_conversions/pcl_conversions.h"
-// #include "pcl_ros/transforms.hpp"
 
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/create_timer_ros.h"
@@ -56,7 +55,7 @@ namespace bonxai_server
 
       // using ResetSrv = std_srvs::srv::Empty;
 
-      explicit BonxaiServer(/*const rclcpp::NodeOptions & node_options*/);
+      explicit BonxaiServer(const rclcpp::NodeOptions & node_options);
 
       virtual void insertCloudCallback(const PointCloud2::ConstSharedPtr cloud);
 
@@ -71,11 +70,8 @@ namespace bonxai_server
 
       static ColorRGBA heightMapColor(double h);
 
-      rclcpp::Publisher<MarkerArray>::SharedPtr marker_pub_;
       rclcpp::Publisher<Marker>::SharedPtr single_marker_pub_;
       rclcpp::Publisher<PointCloud2>::SharedPtr point_cloud_pub_;
-      rclcpp::Publisher<OccupancyGrid>::SharedPtr map_pub_;
-      rclcpp::Publisher<MarkerArray>::SharedPtr fmarker_pub_;
       message_filters::Subscriber<PointCloud2> point_cloud_sub_;
       std::shared_ptr<tf2_ros::MessageFilter<PointCloud2>> tf_point_cloud_sub_;
       // rclcpp::Service<BBoxSrv>::SharedPtr clear_bbox_srv_;

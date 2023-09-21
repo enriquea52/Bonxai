@@ -19,8 +19,8 @@ bool update_param(const std::vector<rclcpp::Parameter> & p, const std::string & 
 
 namespace bonxai_server
 {
-  BonxaiServer::BonxaiServer(/*const rclcpp::NodeOptions & node_options*/)
-  : Node("bonxai_server_node"/*, node_options*/)
+  BonxaiServer::BonxaiServer(const rclcpp::NodeOptions & node_options)
+  : Node("bonxai_server_node", node_options)
   {
       using std::placeholders::_1;
       using std::placeholders::_2;
@@ -195,25 +195,6 @@ namespace bonxai_server
             "This will not work.");
       }
 
-      if (use_height_map_ && use_colored_map_) {
-          RCLCPP_WARN_STREAM(
-            get_logger(),
-            "You enabled both height map and RGB color registration. "
-            "This is contradictory. Defaulting to height map.");
-          use_colored_map_ = false;
-        }
-
-      if (use_colored_map_) {
-        #ifdef COLOR_BONXAI_SERVER
-            RCLCPP_INFO_STREAM(get_logger(), "Using RGB color registration (if information available)");
-        #else
-            RCLCPP_ERROR_STREAM(
-              get_logger(),
-              "Colored map requested in launch file - node not running/compiled to support colors, "
-              "please define COLOR_BONXAI_SERVER and recompile or launch the octomap_color_server node");
-        #endif
-        }
-
       // initialize bonxai object & params
       bonxai_ = std::make_unique<BonxaiT>(res_);
       BonxaiT::Options options = {bonxai_->logods(prob_miss), 
@@ -247,11 +228,8 @@ namespace bonxai_server
       }
 
       auto qos = latched_topics_ ? rclcpp::QoS{1}.transient_local() : rclcpp::QoS{1};
-      marker_pub_ = create_publisher<MarkerArray>("occupied_cells_vis_array", qos);
       single_marker_pub_ = create_publisher<Marker>("occupied_voxel_vis_array", qos);
       point_cloud_pub_ = create_publisher<PointCloud2>("bonxai_point_cloud_centers", qos);
-      map_pub_ = create_publisher<OccupancyGrid>("projected_map", qos.keep_last(5));
-      fmarker_pub_ = create_publisher<MarkerArray>("free_cells_vis_array", qos);
 
       tf2_buffer_ = std::make_shared<tf2_ros::Buffer>(get_clock());
       auto timer_interface = std::make_shared<tf2_ros::CreateTimerROS>(
@@ -382,10 +360,6 @@ namespace bonxai_server
       (latched_topics_ ||
       point_cloud_pub_->get_subscription_count() +
       point_cloud_pub_->get_intra_process_subscription_count() > 0);
-    publish_2d_map_ =
-      (latched_topics_ ||
-      map_pub_->get_subscription_count() +
-      map_pub_->get_intra_process_subscription_count() > 0);
 
     // init markers for occupied space:
     Marker occupied_nodes_vis;
@@ -528,16 +502,6 @@ namespace bonxai_server
 
 } // namespace bonxai_server
 
-int main(int argc, char * argv[])
-{
+#include <rclcpp_components/register_node_macro.hpp>
 
-  double voxel_resolution = 0.05;
-  Bonxai::VoxelGrid<int> grid( voxel_resolution );
-
-  std::cout << "Starting Node" << std::endl;
-
-  rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<bonxai_server::BonxaiServer>());
-  rclcpp::shutdown();
-  return 0;
-}
+RCLCPP_COMPONENTS_REGISTER_NODE(bonxai_server::BonxaiServer)

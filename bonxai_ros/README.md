@@ -14,6 +14,11 @@ git clone https://github.com/enriquea52/Bonxai.git -b ros2
 ```bash
 cd ~/ros2_ws && colcon build --packages-select bonxai_ros --symlink-install
 ```
+4. Source your workspace setub.bash file
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
 
 # 2. Basic Usage
 
