@@ -57,6 +57,11 @@ The centers of all occupied voxels as point cloud, useful for visualization. Not
 
 ## 3.1.3 Parameters
 
+`~reset (std_srvs/srv/Empty)`
+Resets the complete map
+
+## 3.1.4 Parameters
+
 `~frame_id (string, default: /map)`
 
 Static global frame in which the map will be published. A transform from sensor data to this frame needs to be available when dynamically building maps.
@@ -128,7 +133,7 @@ Minimum and maximum height of occupied cells to be consider in the final map. Th
 `~colored_map`
 
 
-## 3.1.4 Required tf Transforms
+## 3.1.5 Required tf Transforms
 
 `sensor data frame → /map (static world frame, changeable with parameter frame_id)`
 

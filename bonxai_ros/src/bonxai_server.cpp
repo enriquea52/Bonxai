@@ -247,7 +247,8 @@ namespace bonxai_server
 
       tf_point_cloud_sub_->registerCallback(&BonxaiServer::insertCloudCallback, this);
 
-      // Add reset service
+      reset_srv_ = create_service<ResetSrv>(
+        "~/reset", std::bind(&BonxaiServer::resetSrv, this, _1, _2));
 
       // set parameter callback
       set_param_res_ =
@@ -447,6 +448,21 @@ namespace bonxai_server
     }
 
   }
+
+  bool BonxaiServer::resetSrv(
+  [[maybe_unused]] const std::shared_ptr<ResetSrv::Request> req,
+  [[maybe_unused]] const std::shared_ptr<ResetSrv::Response> resp)
+  {
+    const auto rostime = now();
+    bonxai_.reset();
+    bonxai_ = std::make_unique<BonxaiT>(res_);
+
+    RCLCPP_INFO(get_logger(), "Cleared Bonxai");
+    publishAll(rostime);
+
+    return true;
+  }
+
 
   ColorRGBA BonxaiServer::heightMapColor(double h)
   {

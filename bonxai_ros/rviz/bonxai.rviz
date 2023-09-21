@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /TF1/Frames1
+        - /VoxelCenterCloud1
       Splitter Ratio: 0.5
     Tree Height: 787
   - Class: rviz_common/Selection
@@ -79,8 +80,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 3.4317626953125
-        Min Value: -5.05922794342041
+        Max Value: 3.27640438079834
+        Min Value: -11.165975570678711
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -88,7 +89,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: AxisColor
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -109,7 +110,7 @@ Visualization Manager:
         Value: /cloud_in
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -132,7 +133,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.20000000298023224
+      Size (m): 0.4000000059604645
       Style: Boxes
       Topic:
         Depth: 5
@@ -190,25 +191,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 105.5682144165039
+      Distance: 327.62188720703125
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 25.04807472229004
-        Y: 9.634771347045898
-        Z: 9.335644721984863
+        X: 159.80718994140625
+        Y: -93.87333679199219
+        Z: -30.11012077331543
       Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.13039866089820862
+      Pitch: 0.2503979802131653
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
-      Yaw: 3.5254011154174805
+      Yaw: 0.5490381717681885
     Saved: ~
 Window Geometry:
   Displays:

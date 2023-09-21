@@ -52,10 +52,13 @@ namespace bonxai_server
         using PCLPointRGB = pcl::PointXYZRGB;
         using PCLPointCloud = pcl::PointCloud<pcl::PointXYZ>;
         using BonxaiT = Bonxai::ProbabilisticMap;
-
-      // using ResetSrv = std_srvs::srv::Empty;
+        using ResetSrv = std_srvs::srv::Empty;
 
       explicit BonxaiServer(const rclcpp::NodeOptions & node_options);
+
+      bool resetSrv(
+        const std::shared_ptr<ResetSrv::Request> req,
+        const std::shared_ptr<ResetSrv::Response> resp);
 
       virtual void insertCloudCallback(const PointCloud2::ConstSharedPtr cloud);
 
@@ -75,7 +78,7 @@ namespace bonxai_server
       message_filters::Subscriber<PointCloud2> point_cloud_sub_;
       std::shared_ptr<tf2_ros::MessageFilter<PointCloud2>> tf_point_cloud_sub_;
       // rclcpp::Service<BBoxSrv>::SharedPtr clear_bbox_srv_;
-      // rclcpp::Service<ResetSrv>::SharedPtr reset_srv_;
+      rclcpp::Service<ResetSrv>::SharedPtr reset_srv_;
       std::shared_ptr<tf2_ros::Buffer> tf2_buffer_;
       std::shared_ptr<tf2_ros::TransformListener> tf2_listener_;
 
