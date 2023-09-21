@@ -7,9 +7,22 @@
 namespace Bonxai
 {
 
-bool ComputeRay(const CoordT &key_origin,
-                const CoordT &key_end,
-                std::vector<CoordT> &ray);
+template <class Functor>
+void RayIterator(const CoordT& key_origin,
+                 const CoordT& key_end,
+                 const Functor& func);
+
+inline void ComputeRay(const CoordT& key_origin,
+                       const CoordT& key_end,
+                       std::vector<CoordT>& ray)
+{
+  ray.clear();
+  RayIterator(key_origin, key_end, [&ray](const CoordT& coord)
+              {
+                ray.push_back(coord);
+                return true;
+              } );
+}
 
 /**
  * @brief The ProbabilisticMap class is meant to behave as much as possible as
@@ -20,6 +33,7 @@ bool ComputeRay(const CoordT &key_origin,
 class ProbabilisticMap
 {
 public:
+  using Vector3D = Eigen::Vector3d;
 
   /// Compute the logds, but return the result as an integer,
   /// The real number is represented as a fixed precision
@@ -134,9 +148,12 @@ private:
 
   Bonxai::VoxelGrid<CellT>::Accessor _accessor;
 
-  void addPoint(const Eigen::Vector3f &origin, const Eigen::Vector3f &point, const float &max_range,
-                const float &max_sqr);
-  void updateFreeCells(const Eigen::Vector3f& origin);
+  void addPoint(const Vector3D& origin,
+                const Vector3D& point,
+                float max_range,
+                float max_sqr);
+
+  void updateFreeCells(const Vector3D& origin);
 };
 
 //--------------------------------------------------
@@ -146,12 +163,68 @@ inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT>& points
                                                const PointT& origin,
                                                double max_range)
 {
-  const auto from = ConvertTo<Eigen::Vector3f>(origin);
+  const auto from = ConvertPoint<Vector3D>(origin);
   const double max_range_sqr = max_range * max_range;
   for (const auto& point : points)
   {
-    const auto to = ConvertTo<Eigen::Vector3f>(point);
+    const auto to = ConvertPoint<Vector3D>(point);
     addPoint(from, to, max_range, max_range_sqr);
+  }
+  updateFreeCells(from);
+}
+
+template <class Functor> inline
+void RayIterator(const CoordT& key_origin,
+                 const CoordT& key_end,
+                 const Functor &func)
+{
+  if (key_origin == key_end)
+  {
+    return;
+  }
+  if(!func(key_origin))
+  {
+    return;
+  }
+
+  CoordT error = { 0, 0, 0 };
+  CoordT coord = key_origin;
+  CoordT delta = (key_end - coord);
+  const CoordT step = { delta.x < 0 ? -1 : 1,
+                        delta.y < 0 ? -1 : 1,
+                        delta.z < 0 ? -1 : 1 };
+
+  delta = { delta.x < 0 ? -delta.x : delta.x,
+            delta.y < 0 ? -delta.y : delta.y,
+            delta.z < 0 ? -delta.z : delta.z };
+
+  const int max = std::max(std::max(delta.x, delta.y), delta.z);
+
+          // maximum change of any coordinate
+  for (int i = 0; i < max - 1; ++i)
+  {
+    // update errors
+    error = error + delta;
+    // manual loop unrolling
+    if ((error.x << 1) >= max)
+    {
+      coord.x += step.x;
+      error.x -= max;
+    }
+    if ((error.y << 1) >= max)
+    {
+      coord.y += step.y;
+      error.y -= max;
+    }
+    if ((error.z << 1) >= max)
+    {
+      coord.z += step.z;
+      error.z -= max;
+    }
+    if(!func(coord))
+    {
+      return;
+    }
   }
 }
 
