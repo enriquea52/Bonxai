@@ -66,37 +66,6 @@ rclcpp_components_register_node(bonxai_server
 )
 
 
-
-# TEMP ####################################
-add_executable(kitti_pub_node bonxai_ros/src/kitti_pub_node.cpp)
-target_link_libraries(kitti_pub_node bonxai_map)
-ament_target_dependencies(kitti_pub_node 
-                          rclcpp 
-                          rclcpp_components 
-                          nav_msgs 
-                          sensor_msgs 
-                          tf2 
-                          tf2_eigen 
-                          tf2_geometry_msgs 
-                          tf2_ros 
-                          visualization_msgs
-                          PCL
-                          pcl_conversions
-                          message_filters
-                          std_srvs
-                          )
-
-install(TARGETS
-  kitti_pub_node
-  DESTINATION lib/${PROJECT_NAME}
-  )
-####################################
-
-
-
-####################################################
-
-
 ament_auto_package(
   INSTALL_TO_SHARE
   bonxai_ros/launch 
