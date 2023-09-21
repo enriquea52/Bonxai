@@ -195,7 +195,24 @@ namespace bonxai_server
             "This will not work.");
       }
 
-      // check line 230 - 248  for height and color maps
+      if (use_height_map_ && use_colored_map_) {
+          RCLCPP_WARN_STREAM(
+            get_logger(),
+            "You enabled both height map and RGB color registration. "
+            "This is contradictory. Defaulting to height map.");
+          use_colored_map_ = false;
+        }
+
+      if (use_colored_map_) {
+        #ifdef COLOR_BONXAI_SERVER
+            RCLCPP_INFO_STREAM(get_logger(), "Using RGB color registration (if information available)");
+        #else
+            RCLCPP_ERROR_STREAM(
+              get_logger(),
+              "Colored map requested in launch file - node not running/compiled to support colors, "
+              "please define COLOR_BONXAI_SERVER and recompile or launch the octomap_color_server node");
+        #endif
+        }
 
       // initialize bonxai object & params
       bonxai_ = std::make_unique<BonxaiT>(res_);
@@ -213,11 +230,6 @@ namespace bonxai_server
       color_.g = declare_parameter("color.g", 0.0);
       color_.b = declare_parameter("color.b", 1.0);
       color_.a = declare_parameter("color.a", 1.0);
-
-      color_free_.r = declare_parameter("color_free.r", 0.0);
-      color_free_.g = declare_parameter("color_free.g", 1.0);
-      color_free_.b = declare_parameter("color_free.b", 0.0);
-      color_free_.r = declare_parameter("color_free.a", 1.0);
 
       publish_free_space_ = declare_parameter("publish_free_space", false);
 
@@ -278,8 +290,6 @@ namespace bonxai_server
     // ground filtering in base frame
     //
     PCLPointCloud pc;  // input cloud for filtering and ground-detection
-    // PCLPointCloud pc_T;  // input cloud transformed w.r.t world's reference frame
-
     pcl::fromROSMsg(*cloud, pc);
 
     // Sensor In Global Frames Coordinates
@@ -318,9 +328,6 @@ namespace bonxai_server
   rcl_interfaces::msg::SetParametersResult BonxaiServer::onParameter(
     const std::vector<rclcpp::Parameter> & parameters)
   {
-    int64_t max_tree_depth{get_parameter("max_depth").as_int()};
-    update_param(parameters, "max_depth", max_tree_depth);
-    max_tree_depth_ = static_cast<size_t>(max_tree_depth);
     update_param(parameters, "point_cloud_min_z", point_cloud_min_z_);
     update_param(parameters, "point_cloud_max_z", point_cloud_max_z_);
     update_param(parameters, "occupancy_min_z", occupancy_min_z_);
@@ -396,11 +403,12 @@ namespace bonxai_server
       double max_y{};
       double max_z{};
 
+
       if (use_height_map_) 
       {
         bonxai_->calcMinMax(bonxai_result, min_x, min_y, min_z, max_x, max_y, max_z);
       }
-      
+
       for (const auto& voxel: bonxai_result)
       {
 
@@ -418,6 +426,7 @@ namespace bonxai_server
             double h = (1.0 - std::min(std::max((cube_center.z - min_z) / (max_z - min_z), 0.0), 1.0)) * color_factor_;
             occupied_nodes_vis.colors.push_back(heightMapColor(h));
           }
+
         }
 
         if(publish_point_cloud)
@@ -425,9 +434,9 @@ namespace bonxai_server
           
           if (!use_height_map_) // If heightmap is not required send blue pointcloud
           {
-            pcl_cloud.push_back(PCLPointRGB(voxel.x(), voxel.y(), voxel.z(), 0, 0, 1));
+            pcl_cloud.push_back(PCLPointRGB(voxel.x(), voxel.y(), voxel.z(), int(floor(255*color_.r)), int(floor(255*color_.g)), int(floor(255*color_.b))));
           }
-          else
+          else 
           {
             double h = (1.0 - std::min(std::max((voxel.z() - min_z) / (max_z - min_z), 0.0), 1.0)) * color_factor_;
             ColorRGBA height_map = heightMapColor(h);
@@ -464,8 +473,6 @@ namespace bonxai_server
     }
 
   }
-
-
 
   ColorRGBA BonxaiServer::heightMapColor(double h)
   {

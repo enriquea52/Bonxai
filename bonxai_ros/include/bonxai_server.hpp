@@ -49,10 +49,11 @@ namespace bonxai_server
   class BonxaiServer : public rclcpp::Node
   {
     public:
-      using PCLPoint = pcl::PointXYZ;
-      using PCLPointRGB = pcl::PointXYZRGB;
-      using PCLPointCloud = pcl::PointCloud<pcl::PointXYZ>;
-      using BonxaiT = Bonxai::ProbabilisticMap;
+        using PCLPoint = pcl::PointXYZ;
+        using PCLPointRGB = pcl::PointXYZRGB;
+        using PCLPointCloud = pcl::PointCloud<pcl::PointXYZ>;
+        using BonxaiT = Bonxai::ProbabilisticMap;
+
       // using ResetSrv = std_srvs::srv::Empty;
 
       explicit BonxaiServer(/*const rclcpp::NodeOptions & node_options*/);
@@ -67,7 +68,6 @@ namespace bonxai_server
 
       rcl_interfaces::msg::SetParametersResult onParameter(
         const std::vector<rclcpp::Parameter> & parameters);
-
 
       static ColorRGBA heightMapColor(double h);
 
@@ -94,7 +94,6 @@ namespace bonxai_server
       std::string base_frame_id_;  // base of the robot for ground plane filtering
       bool use_height_map_;
       ColorRGBA color_;
-      ColorRGBA color_free_;
       double color_factor_;
 
       bool latched_topics_;
@@ -102,7 +101,6 @@ namespace bonxai_server
 
       double res_;
       size_t tree_depth_;
-      size_t max_tree_depth_;
 
       double point_cloud_min_x_;
       double point_cloud_max_x_;

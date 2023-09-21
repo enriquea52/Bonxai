@@ -4,12 +4,11 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 
 #include <set>
 #include <filesystem>
-#include <chrono>
 #include <Eigen/Geometry>
+#include <thread>
 
 #include "bonxai_map/pcl_utils.hpp"
 #include "bonxai_map/probabilistic_map.hpp"
@@ -27,15 +26,12 @@
 #include "sensor_msgs/msg/point_cloud2.hpp"
 #include "std_msgs/msg/header.hpp"
 
-#include <chrono>
-#include <thread>
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_ros/transform_broadcaster.h"
 
 using namespace std;
-
 
 using namespace std::chrono_literals;
 
