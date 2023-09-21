@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(Bonxai)
+project(bonxai_ros)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 
@@ -60,7 +60,7 @@ find_package(message_filters REQUIRED)
 find_package(std_srvs REQUIRED)
 
 
-include_directories(bonxai_ros/include)
+include_directories(bonxai_ros/include 3rdparty)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -92,15 +92,33 @@ ament_target_dependencies(bonxai_server_node
                           std_srvs
                           )
 
+add_executable(kitti_pub_node bonxai_ros/src/kitti_pub_node.cpp)
+target_link_libraries(kitti_pub_node bonxai_map)
+ament_target_dependencies(kitti_pub_node 
+                          rclcpp 
+                          rclcpp_components 
+                          nav_msgs 
+                          sensor_msgs 
+                          tf2 
+                          tf2_eigen 
+                          tf2_geometry_msgs 
+                          tf2_ros 
+                          visualization_msgs
+                          PCL
+                          pcl_conversions
+                          message_filters
+                          std_srvs
+                          )
+
 install(TARGETS
   bonxai_server_node
+  kitti_pub_node
   DESTINATION lib/${PROJECT_NAME}
   )
 
 install(
   DIRECTORY bonxai_ros/launch 
             bonxai_ros/rviz 
-            bonxai_ros/params
   DESTINATION share/${PROJECT_NAME}
 )
 

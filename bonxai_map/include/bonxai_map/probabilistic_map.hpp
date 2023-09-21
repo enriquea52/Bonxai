@@ -91,6 +91,16 @@ public:
                         const PointT &origin,
                         double max_range);
 
+
+  /*
+  Compute min x, y, z and max x, y, z
+  This is useful for building a color map
+  */ 
+  template<typename PointT> inline
+  void calcMinMax(std::vector<PointT>& occupied_voxels, 
+                  double& min_x, double& min_y, double& min_z,
+                  double& max_x,  double& max_y,  double& max_z);
+
   [[nodiscard]] bool isOccupied(const Bonxai::CoordT& coord) const;
 
   [[nodiscard]] bool isUnknown(const Bonxai::CoordT& coord) const;
@@ -159,4 +169,39 @@ void ProbabilisticMap::insertPointCloud(const std::vector<PointT,  Eigen::aligne
   }
   updateFreeCells(origin.getVector3fMap());
 }
+
+template<typename PointT> inline
+void ProbabilisticMap::calcMinMax(std::vector<PointT>& occupied_voxels, 
+                                  double& min_x, double& min_y, double& min_z,
+                                  double& max_x,  double& max_y,  double& max_z) 
+{
+
+  double max_value[3], min_value[3];
+
+  for (unsigned i = 0; i< 3; i++){
+    max_value[i] = -std::numeric_limits<double>::max();
+    min_value[i] = std::numeric_limits<double>::max();
+  }
+
+  for(const auto& node: occupied_voxels)
+  {
+
+    double x = node.x();
+    double y = node.y();
+    double z = node.z();
+    if (x < min_value[0]) min_value[0] = x;
+    if (y < min_value[1]) min_value[1] = y;
+    if (z < min_value[2]) min_value[2] = z;
+
+    if (x > max_value[0]) max_value[0] = x;
+    if (y > max_value[1]) max_value[1] = y;
+    if (z > max_value[2]) max_value[2] = z;
+
+  }
+
+  min_x = min_value[0]; min_y = min_value[1]; min_z = min_value[2];
+  max_x = max_value[0]; max_y = max_value[1]; max_z = max_value[2];
+}
+
+
 }

@@ -181,4 +181,5 @@ void ProbabilisticMap::getFreeVoxels(std::vector<CoordT>& coords)
   _grid.forEachCell(visitor);
 }
 
+
 }  // namespace Bonxai

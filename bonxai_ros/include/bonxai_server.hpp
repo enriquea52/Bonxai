@@ -2,7 +2,7 @@
 #define BONXAI_SERVER__BONXAI_SERVER_HPP_
 
 #include "bonxai_map/pcl_utils.hpp"
-#include "bonxai_map/pointcloud.hpp"
+#include "bonxai_map/probabilistic_map.hpp"
 #include "bonxai/bonxai.hpp"
 
 #include <pcl/segmentation/sac_segmentation.h>
@@ -10,7 +10,6 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
 #include <pcl/common/transforms.h>
-
 
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
@@ -51,6 +50,7 @@ namespace bonxai_server
   {
     public:
       using PCLPoint = pcl::PointXYZ;
+      using PCLPointRGB = pcl::PointXYZRGB;
       using PCLPointCloud = pcl::PointCloud<pcl::PointXYZ>;
       using BonxaiT = Bonxai::ProbabilisticMap;
       // using ResetSrv = std_srvs::srv::Empty;
@@ -68,6 +68,8 @@ namespace bonxai_server
       rcl_interfaces::msg::SetParametersResult onParameter(
         const std::vector<rclcpp::Parameter> & parameters);
 
+
+      static ColorRGBA heightMapColor(double h);
 
       rclcpp::Publisher<MarkerArray>::SharedPtr marker_pub_;
       rclcpp::Publisher<Marker>::SharedPtr single_marker_pub_;

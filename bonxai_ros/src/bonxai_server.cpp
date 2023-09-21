@@ -358,46 +358,165 @@ namespace bonxai_server
 
   void BonxaiServer::publishAll(const rclcpp::Time & rostime)
   {
-
+    const auto start_time = rclcpp::Clock{}.now();
+    std::vector<Eigen::Vector3d> bonxai_result;
+    bonxai_->getOccupiedVoxels(bonxai_result); // TODO: estimate num occ. voxels for size of arrays (reserve)
     
-    bool publish_marker_array =
+    if (bonxai_result.size() <= 1){
+      RCLCPP_WARN(get_logger(), "Nothing to publish, octree is empty");
+      return;
+    }
+
+    bool publishSingleMarker =
       (latched_topics_ ||
       single_marker_pub_->get_subscription_count() +
       single_marker_pub_->get_intra_process_subscription_count() > 0);
+    bool publish_point_cloud =
+      (latched_topics_ ||
+      point_cloud_pub_->get_subscription_count() +
+      point_cloud_pub_->get_intra_process_subscription_count() > 0);
+    publish_2d_map_ =
+      (latched_topics_ ||
+      map_pub_->get_subscription_count() +
+      map_pub_->get_intra_process_subscription_count() > 0);
 
-    if (publish_marker_array)
+    // init markers for occupied space:
+    Marker occupied_nodes_vis;
+
+    // init pointcloud for occupied space:
+    pcl::PointCloud<PCLPointRGB> pcl_cloud;
+
+    if (publishSingleMarker || publish_point_cloud)
     {
-      std::vector<Eigen::Vector3d> bonxai_result;
-      bonxai_->getOccupiedVoxels(bonxai_result);
-      Marker occupied_nodes_vis;
 
-      std::cout << "Currently" << bonxai_result.size() << " Voxels"<< std::endl;
+      double min_x{};
+      double min_y{};
+      double min_z{};
+      double max_x{};
+      double max_y{};
+      double max_z{};
 
-      occupied_nodes_vis.header.frame_id = world_frame_id_;
-      occupied_nodes_vis.header.stamp = rostime;
-      occupied_nodes_vis.ns = "map";
-      occupied_nodes_vis.id = 0;
-      occupied_nodes_vis.type = visualization_msgs::msg::Marker::CUBE_LIST;
-      occupied_nodes_vis.scale.x = res_;
-      occupied_nodes_vis.scale.y = res_;
-      occupied_nodes_vis.scale.z = res_;
-      occupied_nodes_vis.color = color_;
-      occupied_nodes_vis.action = visualization_msgs::msg::Marker::ADD;
-
-      geometry_msgs::msg::Point cube_center;
+      if (use_height_map_) 
+      {
+        bonxai_->calcMinMax(bonxai_result, min_x, min_y, min_z, max_x, max_y, max_z);
+      }
       
       for (const auto& voxel: bonxai_result)
       {
+
+        if(publishSingleMarker)
+        {
+          geometry_msgs::msg::Point cube_center;
           cube_center.x = voxel.x();
           cube_center.y = voxel.y();
           cube_center.z = voxel.z();
 
           occupied_nodes_vis.points.push_back(cube_center);
+
+          if (use_height_map_) 
+          {
+            double h = (1.0 - std::min(std::max((cube_center.z - min_z) / (max_z - min_z), 0.0), 1.0)) * color_factor_;
+            occupied_nodes_vis.colors.push_back(heightMapColor(h));
+          }
+        }
+
+        if(publish_point_cloud)
+        {
+          
+          if (!use_height_map_) // If heightmap is not required send blue pointcloud
+          {
+            pcl_cloud.push_back(PCLPointRGB(voxel.x(), voxel.y(), voxel.z(), 0, 0, 1));
+          }
+          else
+          {
+            double h = (1.0 - std::min(std::max((voxel.z() - min_z) / (max_z - min_z), 0.0), 1.0)) * color_factor_;
+            ColorRGBA height_map = heightMapColor(h);
+            pcl_cloud.push_back(PCLPointRGB(voxel.x(), voxel.y(), voxel.z(), int(floor(255*height_map.r)), int(floor(255*height_map.g)), int(floor(255*height_map.b))));
+          }
+          
+        }
       }
 
-      single_marker_pub_->publish(occupied_nodes_vis);
+      if(publishSingleMarker)
+      {
+        occupied_nodes_vis.header.frame_id = world_frame_id_;
+        occupied_nodes_vis.header.stamp = rostime;
+        occupied_nodes_vis.ns = "map";
+        occupied_nodes_vis.id = 0;
+        occupied_nodes_vis.type = visualization_msgs::msg::Marker::CUBE_LIST;
+        occupied_nodes_vis.scale.x = res_;
+        occupied_nodes_vis.scale.y = res_;
+        occupied_nodes_vis.scale.z = res_;
+        occupied_nodes_vis.color = color_;
+        occupied_nodes_vis.action = visualization_msgs::msg::Marker::ADD;
+        single_marker_pub_->publish(occupied_nodes_vis);
+      }
+
+      if(publish_point_cloud)
+      {
+        PointCloud2 cloud;
+        pcl::toROSMsg(pcl_cloud, cloud);
+        cloud.header.frame_id = world_frame_id_;
+        cloud.header.stamp = rostime;
+        point_cloud_pub_->publish(cloud);
+      }
+
     }
 
+  }
+
+
+
+  ColorRGBA BonxaiServer::heightMapColor(double h)
+  {
+    ColorRGBA color;
+    color.a = 1.0;
+    // blend over HSV-values (more colors)
+
+    double s = 1.0;
+    double v = 1.0;
+
+    h -= floor(h);
+    h *= 6;
+    int i{};
+    double m{};
+    double n{};
+    double f{};
+
+    i = floor(h);
+    f = h - i;
+    if (!(i & 1)) {
+      f = 1 - f;  // if i is even
+    }
+    m = v * (1 - s);
+    n = v * (1 - s * f);
+
+    switch (i) {
+      case 6:
+      case 0:
+        color.r = v; color.g = n; color.b = m;
+        break;
+      case 1:
+        color.r = n; color.g = v; color.b = m;
+        break;
+      case 2:
+        color.r = m; color.g = v; color.b = n;
+        break;
+      case 3:
+        color.r = m; color.g = n; color.b = v;
+        break;
+      case 4:
+        color.r = n; color.g = m; color.b = v;
+        break;
+      case 5:
+        color.r = v; color.g = m; color.b = n;
+        break;
+      default:
+        color.r = 1; color.g = 0.5; color.b = 0.5;
+        break;
+    }
+
+    return color;
   }
 
 } // namespace bonxai_server
