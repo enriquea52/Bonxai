@@ -16,6 +16,7 @@ target_link_libraries(bonxai_map PUBLIC
     bonxai_core
     ${PCL_LIBRARIES})
 
+
 ####################################################
 
 if(benchmark_FOUND AND octomap_FOUND)

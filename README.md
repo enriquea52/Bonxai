@@ -158,4 +158,25 @@ It is... complicated.
 If you need to store very sparse point clouds, you should expect Bonxai to use more memory (20-40% more).
 If the point cloud is relatively dense, Bonxai might use much less memory than Octomap (less than half).
 
+**Buildng Benchmarks**
+When required to only do benchamrk testing, this is the recommende way of building a package with just cmake within a colcon environment.
+
+1. Navigate to the Repository Bonxai
+
+```bash
+cd Bonxai
+```
+
+2. Create a build directory and navigate into it
+
+```bash
+mkdir build && cd build
+```
+3. Run cmake with the flag BUILD_WITH_CMAKE
+
+```bash
+cmake -DBUILD_WITH_CMAKE=ON ..
+```
+
+
 

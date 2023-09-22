@@ -20,6 +20,7 @@ set(CMAKE_CONFIG_PATH ${CMAKE_MODULE_PATH}  "${CMAKE_CURRENT_LIST_DIR}/cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CONFIG_PATH}")
 
 find_package(PCL REQUIRED COMPONENTS common io)
+find_package(OpenCV REQUIRED)
 
 find_package(benchmark QUIET)
 find_package(octomap QUIET)
@@ -42,9 +43,17 @@ endif()
 ####################################################
 add_subdirectory(bonxai_core)
 add_subdirectory(bonxai_map)
+
 ####################################################
 
 # ROS2 Build ########################################
+
+# Default behavior
+option(BUILD_WITH_CMAKE "Build with cmake" OFF)
+
+if (NOT BUILD_WITH_CMAKE)
+    # Add colcon-specific configuration here
+    message("Building with colcon")
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
@@ -71,3 +80,6 @@ ament_auto_package(
   bonxai_ros/launch 
   bonxai_ros/rviz 
 )
+else()
+  message("Building with cmake")
+endif()

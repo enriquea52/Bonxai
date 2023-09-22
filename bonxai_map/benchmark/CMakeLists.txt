@@ -20,3 +20,18 @@ target_include_directories(benchmark_kitti PUBLIC
 target_link_libraries(benchmark_kitti PUBLIC
     bonxai_map
     ${OCTOMAP_LIBRARIES})
+
+
+###############################################
+add_executable(benchmark_7scenes benchmark_7scenes.cpp)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+
+
+target_include_directories(benchmark_7scenes PUBLIC
+    $<BUILD_INTERFACE:${octomap_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/3rdparty> )
+
+target_link_libraries(benchmark_7scenes PUBLIC
+    bonxai_map
+    ${OCTOMAP_LIBRARIES}
+    ${OpenCV_LIBS})

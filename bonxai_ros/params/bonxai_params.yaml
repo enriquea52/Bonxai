@@ -1,0 +1,39 @@
+bonxai_server_node:
+  ros__parameters:
+    resolution: 0.1
+    frame_id: "map"
+    base_frame_id: "base_footprint"
+    use_height_map: false
+    colored_map: false
+    color_factor: 0.8
+    point_cloud_min_x: -100000.0
+    point_cloud_min_y: -100000.0
+    point_cloud_min_z: -100.0
+    point_cloud_max_x: 100000.0
+    point_cloud_max_y: 100000.0
+    point_cloud_max_z: 100.0
+    occupancy_min_z: -100.0
+    occupancy_max_z: 100
+    min_x_size: 0.0
+    min_y_size: 0.0
+    filter_speckles: false
+    filter_ground_plane: false
+    ground_filter:
+      distance: 0.04
+      angle: 0.15
+      plane_distance: 0.07
+    sensor_model:
+      max_range: -1.0
+      hit: 0.7
+      miss: 0.4
+      min: 0.12
+      max: 0.97
+    compress_map: true
+    incremental_2D_projection: false
+    color:
+      r: 0.0
+      g: 0.0
+      b: 1.0
+      a: 1.0
+    publish_free_space: false
+    latch: true
