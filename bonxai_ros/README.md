@@ -122,17 +122,6 @@ Minimum and maximum height of points to consider for insertion in the callback. 
 
 Minimum and maximum height of occupied cells to be consider in the final map. This ignores all occupied voxels outside of the interval when sending out visualizations and collision maps, but will not affect the actual octomap representation.
 
-`~filter_speckles`
-
-`~incremental_2D_projection`
-
-`~compress_map`
-
-`~color_factor`
-
-`~colored_map`
-
-
 ## 3.1.5 Required tf Transforms
 
 `sensor data frame → /map (static world frame, changeable with parameter frame_id)`
