@@ -136,21 +136,31 @@ void ReadPointcloud(const std::string& rgb_file,
   {
     for(int j = 0; j < depth_img.cols; j++)
     {
-      Eigen::Vector3f point; // must be float
 
-      point.z() = depth_img.at<uint16_t>(i,j)/factor;
-      point.x() = (j - cx)*point.z() / fx;
-      point.y() = (i - cy)*point.z() / fy;
+      uint16_t depth_mm = depth_img.at<uint16_t>(i,j);
 
-      // Add color dimensions when available
-      // cv::Vec3b intensity = img.at<cv::Vec3b>(i, j);
-      // uchar blue = intensity.val[0];
-      // uchar green = intensity.val[1];
-      // uchar red = intensity.val[2];
+      if (depth_mm == 65535 || depth_mm == 0)
+      {
+        continue;
+      }
+      else
+      {
+        Eigen::Vector3f point; // must be float
 
-      // apply transform first
-      const Eigen::Vector3d p = transform * point.cast<double>();
-      points.push_back( {Real(p.x()), Real(p.y()), Real(p.z())} );
+        point.z() = depth_mm/factor;
+        point.x() = (j - cx)*point.z() / fx;
+        point.y() = (i - cy)*point.z() / fy;
+
+        // Add color dimensions when available
+        // cv::Vec3b intensity = img.at<cv::Vec3b>(i, j);
+        // uchar blue = intensity.val[0];
+        // uchar green = intensity.val[1];
+        // uchar red = intensity.val[2];
+
+        // apply transform first
+        const Eigen::Vector3d p = transform * point.cast<double>();
+        points.push_back( {Real(p.x()), Real(p.y()), Real(p.z())} );
+      }
     }
   }
 }
@@ -163,7 +173,7 @@ int main(int argc, char** argv)
   cxxopts::Options options("7-Scenes benchmarks", "octomap VS Bonxai");
 
   options.add_options()
-      ("dataset", "Dataset Sequence folder path", cxxopts::value<std::string>())
+      ("dataset", "Dataset Sequence (seq-XX, where XX is the sequence number) folder path", cxxopts::value<std::string>())
       ("max_files", "Max files to process", cxxopts::value<size_t>()->default_value("1000"))
       ("max_dist", "Max distance in meters", cxxopts::value<double>()->default_value("25.0"))
       ("voxel_size", "Voxel size in meters", cxxopts::value<double>()->default_value("0.2"))

@@ -55,31 +55,34 @@ if (NOT BUILD_WITH_CMAKE)
     # Add colcon-specific configuration here
     message("Building with colcon")
 
-find_package(ament_cmake_auto REQUIRED)
-ament_auto_find_build_dependencies()
+    find_package(ament_cmake_auto REQUIRED)
+    ament_auto_find_build_dependencies()
 
-include_directories(bonxai_ros/include 3rdparty)
+    include_directories(bonxai_ros/include 3rdparty)
 
-ament_auto_add_library(bonxai_server SHARED
-bonxai_ros/src/bonxai_server.cpp
-)
+    ament_auto_add_library(bonxai_server SHARED
+    bonxai_ros/src/bonxai_server.cpp
+    )
 
-target_link_libraries(bonxai_server
-  bonxai_map
-  ${PCL_LIBRARIES}
-)
+    target_link_libraries(bonxai_server
+      bonxai_map
+      ${PCL_LIBRARIES}
+    )
 
-rclcpp_components_register_node(bonxai_server
-  PLUGIN "bonxai_server::BonxaiServer"
-  EXECUTABLE bonxai_server_node
-)
+    rclcpp_components_register_node(bonxai_server
+      PLUGIN "bonxai_server::BonxaiServer"
+      EXECUTABLE bonxai_server_node
+    )
 
 
-ament_auto_package(
-  INSTALL_TO_SHARE
-  bonxai_ros/launch 
-  bonxai_ros/rviz 
-)
+    ament_auto_package(
+      INSTALL_TO_SHARE
+      bonxai_ros/launch 
+      bonxai_ros/rviz 
+    )
+
 else()
+
   message("Building with cmake")
+  
 endif()

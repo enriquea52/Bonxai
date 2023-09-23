@@ -22,10 +22,16 @@ source ~/ros2_ws/install/setup.bash
 
 # 2. Basic Usage
 
-The Bonxai Server Node is launched with the following command:
+The Bonxai Server Node is launched with the following command, for basic deployment with a minimal number of tunnable parameters:
 
 ```bash
 ros2 launch bonxai_ros bonxai_mapping.launch.xml
+```
+
+There is another launch file that allows you to modify all the available parameters within the params/bonxai_params.yaml and launch the bonxai_server_node along RViz2.
+
+```bash
+ros2 launch bonxai_ros bonxai_mapping.launch.py
 ```
 
 # 3. ROS2 node API

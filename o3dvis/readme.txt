@@ -2,3 +2,4 @@ This is a Simple Script to Visualize a Pointlocud Stored in .pcd format after ru
 
 python3 vis.py  ../build/bonxai_map/benchmark/bonxai_result.pcd 
 
+NOTE: Two extra bash scripts are provided for direcct visualization of the results after running bonxai_map benchmarks (Resulting Bonxai and Octomap maps for visualization).
