@@ -13,7 +13,7 @@ bonxai_server_node:
     point_cloud_max_y: 100000.0
     point_cloud_max_z: 100.0
     occupancy_min_z: -100.0
-    occupancy_max_z: 100
+    occupancy_max_z: 100.0
     min_x_size: 0.0
     min_y_size: 0.0
     filter_speckles: false
@@ -31,9 +31,9 @@ bonxai_server_node:
     compress_map: true
     incremental_2D_projection: false
     color:
-      r: 0.0
+      r: 1.0
       g: 0.0
-      b: 1.0
+      b: 0.0
       a: 1.0
     publish_free_space: false
     latch: true

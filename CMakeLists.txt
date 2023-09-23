@@ -79,6 +79,7 @@ if (NOT BUILD_WITH_CMAKE)
       INSTALL_TO_SHARE
       bonxai_ros/launch 
       bonxai_ros/rviz 
+      bonxai_ros/params 
     )
 
 else()

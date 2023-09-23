@@ -7,18 +7,16 @@ from launch_ros.actions import Node
 # this is the function launch  system will look for
 def generate_launch_description():
 
-    ####### DATA INPUT ##########
+    # Current Package Name
     package = "bonxai_ros"
-
-    ####### DATA INPUT END ##########
 
     bonxai_params = os.path.join(
         get_package_share_directory(package),
-        'config',
+        'params',
         'bonxai_params.yaml'
         )
         
-    # Robot State Publisher
+    # Bonxai Server Node
     bonxai_node = Node(
         package=package,
         executable='bonxai_server_node',
@@ -39,7 +37,7 @@ def generate_launch_description():
             parameters=[{'use_sim_time': True}],
             arguments=['-d', rviz_config_dir])
 
-    # create and return launch description object
+    # Launch Nodes
     return LaunchDescription(
         [            
             bonxai_node,
