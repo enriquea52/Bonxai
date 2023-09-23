@@ -34,6 +34,10 @@ There is another launch file that allows you to modify all the available paramet
 ros2 launch bonxai_ros bonxai_mapping.launch.py
 ```
 
+<p align="center">
+  <img src="doc/nice_vis.gif" alt="Sublime's custom gif"/>
+</p>
+
 # 3. ROS2 node API
 
 <p align="center">

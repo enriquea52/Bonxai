@@ -179,4 +179,4 @@ mkdir build && cd build
 cmake -DBUILD_WITH_CMAKE=ON ..
 ```
 
-**NOTE:** the p3dvis directory contains a sample python script for visualizing the resulting .pcd pointclouds after finishing running bonxai_map benchmarks.
+**NOTE:** The o3dvis directory contains a sample python script for visualizing the resulting .pcd pointclouds after finishing running bonxai_map benchmarks.
