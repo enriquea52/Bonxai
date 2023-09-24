@@ -61,7 +61,7 @@ Incoming 3D point cloud for scan integration. You need to remap this topic to yo
 
 All occupied voxels as "Boxes" markers for visualization in RViz. Be sure to subscribe to the topic occupied_voxel_vis_array in RViz2!
 
-`octomap_point_cloud_centers (sensor_msgs/msg/PointCloud2)`
+`bonxai_point_cloud_centers (sensor_msgs/msg/PointCloud2)`
 
 The centers of all occupied voxels as point cloud, useful for visualization. For an accurate visualization, manually change the pointcloud size in Rviz2 to the respective voxel resolution.
 
@@ -107,7 +107,7 @@ Minimum and maximum height of points to consider for insertion in the callback. 
 
 `~occupancy_[min|max]_z (float, default: -/+ infinity)`
 
-Minimum and maximum height of occupied cells to be consider in the final map. This ignores all occupied voxels outside of the interval when sending out visualizations and collision maps, but will not affect the actual octomap representation.
+Minimum and maximum height of occupied cells to be consider in the final map. This ignores all occupied voxels outside of the interval when sending out visualizations and collision maps, but will not affect the actual Bonxai map representation.
 
 ## 3.1.5 Required tf Transforms
 
