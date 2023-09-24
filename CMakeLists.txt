@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(bonxai_ros)
+project(Bonxai)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 
@@ -40,20 +40,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -fno-omit-frame-pointer)
 endif()
 
+
 ####################################################
 add_subdirectory(bonxai_core)
 add_subdirectory(bonxai_map)
 
-####################################################
-
-# ROS2 Build ########################################
-
 # Default behavior
-option(BUILD_WITH_CMAKE "Build with cmake" OFF)
+find_package(ament_cmake QUIET)
 
-if (NOT BUILD_WITH_CMAKE)
+if ( ament_cmake_FOUND )
+    project(bonxai_ros)
     # Add colcon-specific configuration here
-    message("Building with colcon")
+    message(STATUS "Building with colcon")
 
     find_package(ament_cmake_auto REQUIRED)
     ament_auto_find_build_dependencies()
@@ -61,7 +59,7 @@ if (NOT BUILD_WITH_CMAKE)
     include_directories(bonxai_ros/include 3rdparty)
 
     ament_auto_add_library(bonxai_server SHARED
-    bonxai_ros/src/bonxai_server.cpp
+      bonxai_ros/src/bonxai_server.cpp
     )
 
     target_link_libraries(bonxai_server
@@ -73,8 +71,7 @@ if (NOT BUILD_WITH_CMAKE)
       PLUGIN "bonxai_server::BonxaiServer"
       EXECUTABLE bonxai_server_node
     )
-
-
+  
     ament_auto_package(
       INSTALL_TO_SHARE
       bonxai_ros/launch 
@@ -84,6 +81,6 @@ if (NOT BUILD_WITH_CMAKE)
 
 else()
 
-  message("Building with cmake")
+  message(STATUS "Building with cmake")
   
 endif()
