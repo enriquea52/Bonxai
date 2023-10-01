@@ -14,7 +14,7 @@ git clone https://github.com/facontidavide/Bonxai.git
 ```bash
 cd ~/ws_bonxai && colcon build --packages-select bonxai_ros --symlink-install
 ```
-4. Source your workspace setub.bash file
+4. Source your workspace setup.bash file
 
 ```bash
 source ~/ws_bonxai/install/setup.bash
