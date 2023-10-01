@@ -178,23 +178,6 @@ inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT, Alloc>&
   updateFreeCells(from);
 }
 
-template<typename PointT> inline
-void ProbabilisticMap::insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
-                                        const PointT &origin,
-                                        double max_range)
-{
-  Eigen::Vector3f fromf = origin.getVector3fMap();
-  const auto from = fromf.cast<double>();
-  const double max_range_sqr = max_range*max_range;
-  for(const auto& point: points)
-  {
-    Eigen::Vector3f tof = point.getVector3fMap();
-    const auto to = tof.cast<double>();
-    addPoint(from, to, max_range, max_range_sqr);
-  }
-  updateFreeCells(from);
-}
-
 template <class Functor> inline
 void RayIterator(const CoordT& key_origin,
                  const CoordT& key_end,
