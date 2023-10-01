@@ -99,15 +99,20 @@ public:
    * @param max_range  max range of the ray, if exceeded, we will use that
    * to compute a free space
    */
-  template <typename PointT>
-  void insertPointCloud(const std::vector<PointT>& points,
+  template <typename PointT, typename Allocator>
+  void insertPointCloud(const std::vector<PointT, Allocator>& points,
                         const PointT& origin,
                         double max_range);
 
-  template <typename PointT>
-  void insertPointCloud(const std::vector<PointT,  Eigen::aligned_allocator<PointT>>  &points,
-                        const PointT &origin,
-                        double max_range);
+  // This function is usually called by insertPointCloud
+  // We expose it here to add more control to the user.
+  // Once finished adding points, you must call updateFreeCells()
+  void addHitPoint(const Vector3D& point);
+
+  // This function is usually called by insertPointCloud
+  // We expose it here to add more control to the user.
+  // Once finished adding points, you must call updateFreeCells()
+  void addMissPoint(const Vector3D& point);
 
   [[nodiscard]] bool isOccupied(const Bonxai::CoordT& coord) const;
 
@@ -137,23 +142,18 @@ private:
   Options _options;
   uint8_t _update_count = 1;
 
-  std::unordered_set<CoordT> _miss_coords;
+  std::vector<CoordT> _miss_coords;
   std::vector<CoordT> _hit_coords;
 
-  Bonxai::VoxelGrid<CellT>::Accessor _accessor;
-
-  void addPoint(const Vector3D& origin,
-                const Vector3D& point,
-                float max_range,
-                float max_sqr);
+  mutable Bonxai::VoxelGrid<CellT>::Accessor _accessor;
 
   void updateFreeCells(const Vector3D& origin);
 };
 
 //--------------------------------------------------
 
-template <typename PointT>
-inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT>& points,
+template <typename PointT, typename Alloc>
+inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT, Alloc>& points,
                                                const PointT& origin,
                                                double max_range)
 {
@@ -162,7 +162,18 @@ inline void ProbabilisticMap::insertPointCloud(const std::vector<PointT>& points
   for (const auto& point : points)
   {
     const auto to = ConvertPoint<Vector3D>(point);
-    addPoint(from, to, max_range, max_range_sqr);
+    Vector3D vect(to - from);
+    const double squared_norm = vect.squaredNorm();
+    // points that exceed the max_range will create a cleaning ray
+    if (squared_norm >= max_range_sqr)
+    {
+      // The new point will have distance == max_range from origin
+      const Vector3D new_point = from + ((vect / std::sqrt(squared_norm)) * max_range);
+      addMissPoint(new_point);
+    }
+    else {
+      addHitPoint(to);
+    }
   }
   updateFreeCells(from);
 }
@@ -211,7 +222,7 @@ void RayIterator(const CoordT& key_origin,
 
   const int max = std::max(std::max(delta.x, delta.y), delta.z);
 
-          // maximum change of any coordinate
+  // maximum change of any coordinate
   for (int i = 0; i < max - 1; ++i)
   {
     // update errors

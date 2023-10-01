@@ -34,27 +34,8 @@ void ProbabilisticMap::setOptions(const Options& options)
   _options = options;
 }
 
-void ProbabilisticMap::addPoint(const Vector3D& origin,
-                                const Vector3D& point,
-                                float max_range,
-                                float max_range_sqr)
+void ProbabilisticMap::addHitPoint(const Vector3D &point)
 {
-  Vector3D vect(point - origin);
-  const double squared_norm = vect.squaredNorm();
-  if (squared_norm >= max_range_sqr)
-  {
-    // this will be considered a "miss".
-    // Compute the end point to cast a cleaning ray
-    vect /= std::sqrt(squared_norm);
-    const Vector3D new_point = origin + (vect * max_range);
-    const auto coord = _grid.posToCoord(new_point);
-
-    // for very dense pointclouds, this MIGHT be true.
-    // worth checking, to avoid calling unordered_set::insert
-    _miss_coords.insert(coord);
-    return;
-  }
-
   const auto coord = _grid.posToCoord(point);
   CellT* cell = _accessor.value(coord, true);
 
@@ -68,10 +49,53 @@ void ProbabilisticMap::addPoint(const Vector3D& origin,
   }
 }
 
+void ProbabilisticMap::addMissPoint(const Vector3D &point)
+{
+  const auto coord = _grid.posToCoord(point);
+  CellT* cell = _accessor.value(coord, true);
+
+  if (cell->update_id != _update_count)
+  {
+    cell->probability_log = std::max(
+        cell->probability_log + _options.prob_miss_log, _options.clamp_min_log);
+
+    cell->update_id = _update_count;
+    _miss_coords.push_back(coord);
+  }
+}
+
+bool ProbabilisticMap::isOccupied(const CoordT &coord) const
+{
+  if(auto* cell = _accessor.value(coord, false))
+  {
+    return cell->probability_log > _options.occupancy_threshold_log;
+  }
+  return false;
+}
+
+bool ProbabilisticMap::isUnknown(const CoordT &coord) const
+{
+  if(auto* cell = _accessor.value(coord, false))
+  {
+    return cell->probability_log == _options.occupancy_threshold_log;
+  }
+  return true;
+}
+
+bool ProbabilisticMap::isFree(const CoordT &coord) const
+{
+  if(auto* cell = _accessor.value(coord, false))
+  {
+    return cell->probability_log < _options.occupancy_threshold_log;
+  }
+  return false;
+}
+
 void Bonxai::ProbabilisticMap::updateFreeCells(const Vector3D& origin)
 {
   auto accessor = _grid.createAccessor();
 
+  // same as addMissPoint, but using lambda will force inlining
   auto clearPoint = [this, &accessor](const CoordT& coord)
   {
     CellT* cell = accessor.value(coord, true);

@@ -14,10 +14,8 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
 #include <type_traits>
 #include <unordered_map>
 
@@ -206,6 +204,9 @@ public:
 private:
   uint32_t findFirstOn() const;
   uint32_t findNextOn(uint32_t start) const;
+
+  static uint32_t FindLowestOn(uint64_t v);
+  static uint32_t CountOn(uint64_t v);
 };
 
 //----------------------------------------------------------
@@ -610,16 +611,21 @@ inline CoordT VoxelGrid<DataT>::getInnerKey(const CoordT& coord)
 template <typename DataT>
 inline uint32_t VoxelGrid<DataT>::getInnerIndex(const CoordT& coord)
 {
+  // clang-format off
   return ((coord.x >> LEAF_BITS) & INNER_MASK) |
          (((coord.y >> LEAF_BITS) & INNER_MASK) << INNER_BITS) |
          (((coord.z >> LEAF_BITS) & INNER_MASK) << (INNER_BITS * 2));
+  // clang-format on
 }
 
 template <typename DataT>
 inline uint32_t VoxelGrid<DataT>::getLeafIndex(const CoordT& coord)
 {
-  return (coord.x & LEAF_MASK) | ((coord.y & LEAF_MASK) << LEAF_BITS) |
+  // clang-format off
+  return (coord.x & LEAF_MASK) |
+         ((coord.y & LEAF_MASK) << LEAF_BITS) |
          ((coord.z & LEAF_MASK) << (LEAF_BITS * 2));
+  // clang-format on
 }
 
 template <typename DataT>
@@ -857,7 +863,7 @@ inline void VoxelGrid<DataT>::forEachCell(VisitorFunction func)
 /// @warning Assumes that at least one bit is set in the word, i.e. @a v !=
 /// uint32_t(0)!
 
-static inline uint32_t FindLowestOn(uint64_t v)
+inline uint32_t Mask::FindLowestOn(uint64_t v)
 {
 #if defined(_MSC_VER) && defined(BONXAI_USE_INTRINSICS)
   unsigned long index;
@@ -887,7 +893,7 @@ static inline uint32_t FindLowestOn(uint64_t v)
 
 /// @return Number of bits that are on in the specified 64-bit word
 
-inline uint32_t CountOn(uint64_t v)
+inline uint32_t Mask::CountOn(uint64_t v)
 {
 #if defined(_MSC_VER) && defined(_M_X64)
   v = __popcnt64(v);
